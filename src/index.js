@@ -66,7 +66,14 @@ async function searchImage(url) {
 
     if (response.data.hits.length === 0) {
       throw new Error();
-    } else {
+    }
+    if(response.data.hits.length < 40){
+        buttonEl.classList.toggle('is-hidden');
+        Notiflix.Notify.success(`Hooray! We found ${totalHits} images.`);
+        murcapImageCart(response);
+    }
+    
+    else {
       Notiflix.Notify.success(`Hooray! We found ${totalHits} images.`);
       murcapImageCart(response);
     }
