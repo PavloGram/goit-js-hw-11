@@ -30,7 +30,6 @@ function imageNameValue(e) {
     image_type: 'photo',
     orientation: 'horizontal',
     safesearch: true,
-
     page: 1,
     per_page: 40,
   });
@@ -53,7 +52,6 @@ function moreImage() {
     image_type: 'photo',
     orientation: 'horizontal',
     safesearch: true,
-
     page: (pageCounter += 1),
     per_page: 40,
   });
