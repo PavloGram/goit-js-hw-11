@@ -38,12 +38,9 @@ function imageNameValue(e) {
 }
 
 function moreImage() {
-  buttonEl.classList.add('is-hidden');
   if (totalHits - pageCounter * page <= page) {
-    buttonEl.classList.remove('is-hidden');
-    Notiflix.Notify.failure(
-      "We're sorry, but you've reached the end of search results."
-    );
+    addHiddenForBtn();
+    failureBtnMessage();
   }
 
   const searchParams = new URLSearchParams({
@@ -52,7 +49,7 @@ function moreImage() {
     image_type: 'photo',
     orientation: 'horizontal',
     safesearch: true,
-      page: (pageCounter += 1),
+    page: (pageCounter += 1),
     per_page: 40,
   });
   const url = `${BASIC_URL}?${searchParams}`;
@@ -67,23 +64,23 @@ async function searchImage(url) {
     if (response.data.hits.length === 0) {
       throw new Error();
     }
-    if(response.data.hits.length < 40){
-        buttonEl.classList.toggle('is-hidden');
-        Notiflix.Notify.success(`Hooray! We found ${totalHits} images.`);
-        murcapImageCart(response);
+    if (pageCounter > 1) {
+      return murcapImageCart(response);
     }
-    
-    else {
-      Notiflix.Notify.success(`Hooray! We found ${totalHits} images.`);
+    if (response.data.hits.length < 40) {
+      addHiddenForBtn();
+      successMessage();
+      failureBtnMessage();
+
+      return murcapImageCart(response);
+    } else {
+      successMessage();
+      removeHiddenForBtn();
       murcapImageCart(response);
     }
-
-    return response.data;
   } catch {
-    buttonEl.classList.add('is-hidden');
-    Notiflix.Notify.failure(
-      '"Sorry, there are no images matching your search query. Please try again.'
-    );
+    // addHiddenForBtn();
+    failureMessage();
   }
 }
 
@@ -110,9 +107,28 @@ function murcapImageCart(response) {
     })
     .join('');
   galleryEl.insertAdjacentHTML('beforeend', marcup);
-  buttonEl.classList.toggle('is-hidden');
 }
 
 function clearMurcap() {
   galleryEl.innerHTML = '';
+}
+
+function successMessage() {
+  Notiflix.Notify.success(`Hooray! We found ${totalHits} images.`);
+}
+function failureMessage() {
+  Notiflix.Notify.failure(
+    'Sorry, there are no images matching your search query. Please try again.'
+  );
+}
+function failureBtnMessage() {
+  Notiflix.Notify.failure(
+    "We're sorry, but you've reached the end of search results."
+  );
+}
+function addHiddenForBtn() {
+  buttonEl.classList.add('is-hidden');
+}
+function removeHiddenForBtn() {
+  buttonEl.classList.remove('is-hidden');
 }
