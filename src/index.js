@@ -18,7 +18,7 @@ buttonEl.addEventListener('click', moreImage);
 function imageNameValue(e) {
   e.preventDefault();
   clearMurcap();
-  value = e.currentTarget.searchQuery.value;
+  value = e.currentTarget.searchQuery.value.trim();
 
   if (value === '') {
     return Notiflix.Notify.failure('Need input search text.');
@@ -79,7 +79,6 @@ async function searchImage(url) {
       murcapImageCart(response);
     }
   } catch {
-    // addHiddenForBtn();
     failureMessage();
   }
 }
