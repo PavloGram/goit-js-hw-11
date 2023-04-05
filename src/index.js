@@ -15,71 +15,67 @@ let value = '';
 formEl.addEventListener('submit', imageNameValue);
 buttonEl.addEventListener('click', moreImage);
 
-function imageNameValue(e) {
-  e.preventDefault();
-  clearMurcap();
-  value = e.currentTarget.searchQuery.value.trim();
-
-  if (value === '') {
-    return Notiflix.Notify.failure('Need input search text.');
-  }
-
+function urlMacker(value) {
   const searchParams = new URLSearchParams({
     key: '34878247-d7f93aeb6758d56eb43c829d6',
     q: value,
     image_type: 'photo',
     orientation: 'horizontal',
     safesearch: true,
-    page: 1,
+    page: pageCounter,
     per_page: 40,
   });
-  const url = `${BASIC_URL}?${searchParams}`;
-  searchImage(url);
+   return `${BASIC_URL}?${searchParams}`;
 }
 
-function moreImage() {
+ async function imageNameValue(e) {
+  e.preventDefault();
+  clearMurcap();
+  value = e.currentTarget.searchQuery.value.trim();
+   if (value === '') {
+    return textMsg();
+  }
+const url = urlMacker(value);
+const response = await searchImage(url)
+totalHits = response.data.totalHits;
+
+sortResponseForMarcup(response)
+}
+
+async function moreImage() {
+  pageCounter += 1
   if (totalHits - pageCounter * page <= page) {
     addHiddenForBtn();
     failureBtnMessage();
   }
-
-  const searchParams = new URLSearchParams({
-    key: '34878247-d7f93aeb6758d56eb43c829d6',
-    q: value,
-    image_type: 'photo',
-    orientation: 'horizontal',
-    safesearch: true,
-    page: (pageCounter += 1),
-    per_page: 40,
-  });
-  const url = `${BASIC_URL}?${searchParams}`;
-  searchImage(url);
+ const url = urlMacker(value);
+ const response = await searchImage(url)
+ console.log(response.data);
+sortResponseForMarcup(response)
 }
 
 async function searchImage(url) {
   try {
     const response = await axios.get(url);
-    totalHits = response.data.totalHits;
+    return response;
+  } catch(error) {
+    console.log(error)
+      }
+}
 
-    if (response.data.hits.length === 0) {
-      throw new Error();
-    }
-    if (pageCounter > 1) {
-      return murcapImageCart(response);
-    }
+function sortResponseForMarcup(response){
     if (response.data.hits.length < 40) {
-      addHiddenForBtn();
-      successMessage();
-      failureBtnMessage();
-
-      return murcapImageCart(response);
-    } else {
-      successMessage();
-      removeHiddenForBtn();
-      murcapImageCart(response);
-    }
-  } catch {
-    failureMessage();
+    addHiddenForBtn();
+    successMessage();
+    failureBtnMessage();
+    return murcapImageCart(response);
+  }
+  if (pageCounter > 1) {
+    return murcapImageCart(response);
+  } else {
+    successMessage();
+    removeHiddenForBtn();
+    murcapImageCart(response);
   }
 }
 
@@ -124,6 +120,10 @@ function failureBtnMessage() {
   Notiflix.Notify.failure(
     "We're sorry, but you've reached the end of search results."
   );
+}
+
+function textMsg() {
+  Notiflix.Notify.failure('Need input search text.');
 }
 function addHiddenForBtn() {
   buttonEl.classList.add('is-hidden');
