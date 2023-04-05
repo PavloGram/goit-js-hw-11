@@ -25,56 +25,61 @@ function urlMacker(value) {
     page: pageCounter,
     per_page: 40,
   });
-   return `${BASIC_URL}?${searchParams}`;
+  return `${BASIC_URL}?${searchParams}`;
 }
 
- async function imageNameValue(e) {
+async function imageNameValue(e) {
   e.preventDefault();
   clearMurcap();
+  addHiddenForBtn();
+  pageCounter = 1;
   value = e.currentTarget.searchQuery.value.trim();
-   if (value === '') {
+  if (value === '') {
     return textMsg();
   }
-const url = urlMacker(value);
-const response = await searchImage(url)
-totalHits = response.data.totalHits;
+  const url = urlMacker(value);
+  const response = await searchImage(url);
+  totalHits = response.data.totalHits;
 
-sortResponseForMarcup(response)
+  sortResponseForMarcup(response);
 }
 
 async function moreImage() {
-  pageCounter += 1
-  if (totalHits - pageCounter * page <= page) {
-    addHiddenForBtn();
-    failureBtnMessage();
-  }
- const url = urlMacker(value);
- const response = await searchImage(url)
- console.log(response.data);
-sortResponseForMarcup(response)
+  pageCounter += 1;
+  const url = urlMacker(value);
+  const response = await searchImage(url);
+  sortResponseForMarcup(response);
 }
 
 async function searchImage(url) {
   try {
     const response = await axios.get(url);
     return response;
-  } catch(error) {
-    console.log(error)
-      }
+  } catch (error) {
+    console.log(error);
+  }
 }
 
-function sortResponseForMarcup(response){
-    if (response.data.hits.length < 40) {
+function sortResponseForMarcup(response) {
+  if (response.data.hits.length === 0) {
+    return failureMessage();
+  }
+  if (pageCounter > 1 && response.data.hits.length < 40) {
+    addHiddenForBtn();
+    failureBtnMessage();
+    return murcapImageCart(response);
+  }
+  if (response.data.hits.length < 40) {
     addHiddenForBtn();
     successMessage();
     failureBtnMessage();
     return murcapImageCart(response);
   }
-  if (pageCounter > 1) {
-    return murcapImageCart(response);
-  } else {
+  if (pageCounter === 1) {
     successMessage();
     removeHiddenForBtn();
+    return murcapImageCart(response);
+  } else {
     murcapImageCart(response);
   }
 }
